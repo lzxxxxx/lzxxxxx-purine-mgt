@@ -1,0 +1,20 @@
+<view class="modal-container" wx:if="{{isVisible}}">
+  <view class="modal">
+    <view class="modal-header">
+      <view class="close-button" bindtap="onCancel">×</view>
+      <text class="modal-title">{{title}}</text>
+    </view>
+    <scroll-view class="modal-content" scroll-y type="list">
+        <text>{{content.desc}}</text>
+    </scroll-view>
+    <view class="modal-footer">
+      <!-- 根据type属性判断显示的按钮 -->
+      <block wx:if="{{type === 'view'}}">
+        <button class="modal-button confirm-button single-button" bindtap="onCancel">关闭</button>
+      </block>
+      <block wx:elif="{{type === 'add'}}">
+        <button class="modal-button confirm-button single-button" bindtap="onConfirm">添加到饮食记录</button>
+      </block>
+    </view>
+  </view>
+</view> 

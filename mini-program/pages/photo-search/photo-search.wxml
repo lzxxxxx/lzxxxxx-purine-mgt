@@ -1,0 +1,81 @@
+<view class="container">
+  <!-- 日期选择器 -->
+  <view class="date-header">
+    <image 
+      class="calendar-icon" 
+      src="/images/icons/calendar.svg" 
+      bindtap="showDatePicker"
+    />
+    <scroll-view 
+      class="date-scroll" 
+      scroll-x 
+      enable-flex 
+      bindtouchstart="touchStart"
+      bindtouchend="touchEnd">
+      <view class="date-list" animation="{{animationData}}">
+        <view class="date-column" wx:for="{{dateList}}" wx:key="fullDate">
+          <text class="weekday">{{weekdays[item.weekDay]}}</text>
+          <view 
+            class="date-item {{selectedDate === item.fullDate ? 'selected' : ''}}" 
+            bindtap="onDateSelect"
+            data-date="{{item.fullDate}}"
+          >
+            <text class="date">{{item.date}}</text>
+            <view class="dot" wx:if="{{item.hasRecord}}"></view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 卡路里统计 -->
+  <view class="stats-card">
+    <view class="calorie-count">
+      <text class="number">{{totalPurine}}</text>
+      <text class="unit">/{{targetPurine}}mg</text>
+    </view>
+  </view>
+
+  <!-- 饮食记录列表 -->
+  <view class="food-records">
+    <view class="record-title">饮食记录</view>
+    
+    <view class="no-record" wx:if="{{dayRecords.length === 0}}">暂无记录</view>
+    
+    <view class="record-list" wx:if="{{dayRecords.length > 0}}">
+      <view class="record-item" wx:for="{{dayRecords}}" wx:key="imageUrl" bindtap="showRecordDetail" data-record="{{item}}">
+        <image class="food-image" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view class="food-info">
+          <text class="food-name">{{item.name}}</text>
+          <text class="food-purine">{{item.purine}}mg</text>
+          <text class="food-time">{{item.time}}</text>
+        </view>
+        <image class="detail-icon" src="/images/icons/right.svg"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 拍照按钮 -->
+  <view class="photo-button" bindtap="takePhoto">
+    <image class="camera-icon" src="/images/icons/camerafill.svg"></image>
+    <text>拍照识别嘌呤数</text>
+  </view>
+
+  <!-- 自定义弹窗 -->
+  <custom-modal 
+    title="{{modalContent ? (type === 'view' ? '饮食详情' : '扫描结果') : ''}}"
+    content="{{modalContent}}" 
+    isVisible="{{isModalVisible}}" 
+    type="{{type}}"
+    bindconfirm="handleModalConfirm"
+    bindcancel="handleModalCancel">
+  </custom-modal>
+
+  <!-- 日期选择器 -->
+  <date-picker
+    show="{{isDatePickerVisible}}"
+    value="{{selectedDate}}"
+    bindclose="onDatePickerClose"
+    bindconfirm="onDatePickerConfirm"
+  />
+</view> 

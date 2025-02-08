@@ -1,0 +1,45 @@
+<view class="container">
+  <!-- 搜索框部分 -->
+  <view class="search-section">
+    <view class="search-box">
+      <input 
+        class="search-input" 
+        placeholder="输入食物名称，查询嘌呤含量" 
+        bindinput="onSearchInput"
+        value="{{searchValue}}"
+      />
+    </view>
+  </view>
+
+  <!-- 数据来源说明 -->
+  <view class="data-source">
+    数据来源：中国食物成分表(第6版)；中国营养学会
+  </view>
+
+  <!-- 加载中提示 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 食物列表 -->
+  <scroll-view class="food-list" scroll-y>
+    <view 
+      class="food-item" 
+      wx:for="{{foods}}" 
+      wx:key="_id"
+      bindtap="onFoodTap"
+      data-food="{{item}}"
+    >
+      <view class="food-name">{{item.name}}</view>
+      <view class="food-info">
+        <text class="purine">嘌呤含量: {{item.purineContent}}mg/100g</text>
+        <text class="risk-level risk-{{item.riskLevel}}">{{item.riskLevel === 'high' ? '高风险' : item.riskLevel === 'medium' ? '中风险' : '低风险'}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 无数据提示 -->
+  <view class="no-data" wx:if="{{!loading && foods.length === 0}}">
+    <text>未找到相关食物</text>
+  </view>
+</view> 

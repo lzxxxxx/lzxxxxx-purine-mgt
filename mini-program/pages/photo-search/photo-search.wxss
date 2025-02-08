@@ -1,0 +1,235 @@
+.container {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100vh;
+}
+
+.date-header {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 20rpx;
+  border-radius: 16rpx;
+}
+
+.calendar-icon {
+  width: 48rpx;
+  height: 48rpx;
+  flex-shrink: 0;
+}
+
+.date-scroll {
+  background: #fff;
+  border-radius: 16rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  flex: 1;
+}
+
+.date-list {
+  display: flex;
+  width: fit-content;
+}
+
+.date-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 91rpx;
+  flex-shrink: 0;
+}
+
+.weekday {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 0;
+  width: 100%;
+}
+
+.date-item.selected {
+  background: #f0f0f0;
+  border-radius: 8rpx;
+}
+
+.date {
+  font-size: 32rpx;
+  color: #333;
+}
+
+.dot {
+  width: 8rpx;
+  height: 8rpx;
+  background: #07c160;
+  border-radius: 50%;
+  margin-top: 4rpx;
+}
+
+.stats-card {
+  background: #fff;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: visible;
+  margin-top: 20rpx;
+  flex-shrink: 0;
+}
+
+.calorie-count {
+  display: flex;
+  align-items: baseline;
+}
+
+.number {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #07c160;
+}
+
+.unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 8rpx;
+}
+
+.food-records {
+  background: #fff;
+  margin-top: 20rpx;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.record-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  flex-shrink: 0;
+}
+
+.record-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.no-record {
+  font-size: 28rpx;
+  color: #999;
+  padding: 20rpx;
+  text-align: center;
+  margin-top: 20rpx;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  position: relative;
+}
+
+.food-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  margin-right: 20rpx;
+}
+
+.food-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.food-name {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.food-purine {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.food-time {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  align-self: flex-end;
+}
+
+.food-detail {
+  color: #999;
+  padding: 0 20rpx;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.photo-button {
+  position: fixed;
+  bottom: 40rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #07c160;
+  color: #fff;
+  padding: 20rpx;
+  border-radius: 100rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 8rpx rgba(0,0,0,0.1);
+  margin: 20rpx;
+  z-index: 100;
+}
+
+.camera-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 12rpx;
+}
+
+.progress-container {
+  width: 80rpx;
+  height: 40rpx;
+  transform: rotate(180deg);
+  overflow: hidden;
+}
+
+.flame-icon {
+  position: absolute;
+  width: 24rpx;
+  height: 24rpx;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.detail-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: auto;
+  opacity: 0.3;
+  align-self: flex-start;
+}
+
+.ring-canvas {
+  position: relative;
+  z-index: 1;
+} 

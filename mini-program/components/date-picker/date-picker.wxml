@@ -1,0 +1,40 @@
+<view class="date-picker-mask {{show ? 'show' : ''}}" bindtap="onClose">
+  <view class="date-picker-container" catchtap="preventBubble">
+    <!-- 头部 -->
+    <view class="header">
+      <text class="cancel" bindtap="onClose">取消</text>
+      <text class="title">选择日期</text>
+      <text class="confirm" bindtap="onConfirm">确定</text>
+    </view>
+
+    <!-- 日历主体 -->
+    <view class="calendar">
+      <!-- 年月选择器 -->
+      <picker-view 
+        value="{{pickerValue}}" 
+        bindchange="onPickerChange" 
+        class="picker-view"
+        indicator-class="picker-indicator"
+      >
+        <!-- 年份列 -->
+        <picker-view-column>
+          <view wx:for="{{years}}" wx:key="*this" class="picker-item">
+            {{item}}年
+          </view>
+        </picker-view-column>
+        <!-- 月份列 -->
+        <picker-view-column>
+          <view wx:for="{{months}}" wx:key="*this" class="picker-item">
+            {{item}}月
+          </view>
+        </picker-view-column>
+        <!-- 日期列 -->
+        <picker-view-column>
+          <view wx:for="{{days}}" wx:key="*this" class="picker-item">
+            {{item}}日
+          </view>
+        </picker-view-column>
+      </picker-view>
+    </view>
+  </view>
+</view> 

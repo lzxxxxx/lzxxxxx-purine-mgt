@@ -1,0 +1,18 @@
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <!-- 功能卡片区域 -->
+    <view class="card-list">
+      <!-- 食物嘌呤查询卡片 -->
+      <view class="card" bindtap="onFoodSearch">
+        <image class="card-icon" src="/images/icons/food-icon.png" mode="aspectFit"></image>
+        <text class="card-title">食物嘌呤查询</text>
+      </view>
+      
+      <!-- 拍照识别嘌呤卡片 -->
+      <view class="card" bindtap="onPhotoSearch">
+        <image class="card-icon" src="/images/icons/camera-icon.png" mode="aspectFit"></image>
+        <text class="card-title">拍照识别嘌呤</text>
+      </view>
+    </view>
+  </view>
+</scroll-view> 

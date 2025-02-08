@@ -1,0 +1,10 @@
+<view class="container">
+  <view class="user-info">
+    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <text class="nickname">{{userInfo.nickName || '未登录'}}</text>
+  </view>
+
+  <view class="menu-list">
+    <!-- TODO: 添加用户菜单项 -->
+  </view>
+</view> 

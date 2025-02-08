@@ -1,0 +1,85 @@
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 16rpx;
+  width: 95%;
+  max-width: 600rpx;
+  padding-top: 40rpx;
+  margin-top: 20rpx;
+}
+
+.modal-header {
+  margin-bottom: 20rpx;
+  padding: 0 40rpx;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  right: 40rpx;
+  top: 0;
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+  padding: 0 20rpx;
+  cursor: pointer;
+}
+
+.modal-title {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: green;
+}
+
+.modal-content {
+  margin-bottom: 30rpx;
+  white-space: pre-line;
+  font-size: 28rpx;
+  color: #666;
+  padding: 0 40rpx;
+  min-height: 500rpx;
+  max-height: 700rpx;
+  box-sizing: border-box;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #ebebeb;
+}
+
+.modal-button {
+  flex: 1;
+  padding: 24rpx;
+  font-size: 28rpx;
+  border: none;
+  background-color: white;
+  font-size: 32rpx;
+}
+
+.cancel-button {
+    border-right: 1px solid #ebebeb;
+    font-weight: initial;
+}
+
+.confirm-button {
+    color: green;
+    font-weight: bold;
+}
+
+/* 单个按钮不需要右边框 */
+.single-button {
+  border-right: none;
+} 

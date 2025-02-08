@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "拍照识别",
+  "usingComponents": {
+    "custom-modal": "../../components/custom-modal/custom-modal",
+    "date-picker": "/components/date-picker/date-picker"
+  },
+  "disableScroll": true
+} 
