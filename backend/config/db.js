@@ -8,12 +8,13 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      // 减少重试次数，加快失败检测
-      serverSelectionTimeoutMS: 15000,
-      socketTimeoutMS: 30000,
-      // 增加连接池大小
-      maxPoolSize: 20,
-      minPoolSize: 5,
+      // 优化连接池
+      maxPoolSize: 10,        // 减小连接池，避免资源浪费
+      minPoolSize: 3,         // 保持最小连接数
+      maxIdleTimeMS: 10000,   // 空闲连接最大存活时间
+      // 超时设置
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
       // 启用压缩
       compressors: ['zlib'],
       // 设置更积极的心跳

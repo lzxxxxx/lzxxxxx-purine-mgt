@@ -1,33 +1,44 @@
 const express = require('express');
 const router = express.Router();
 const Food = require('../models/Food');
+const mongoose = require('mongoose');
 
 // GET /api/foods
 router.get('/', async (req, res) => {
   const startTime = Date.now();
+  let queryStartTime;
+  
   try {
     const { category, riskLevel, search } = req.query;
     let query = {};
-
-    // 构建查询条件
     if (category) query.category = category;
     if (riskLevel) query.riskLevel = riskLevel;
     if (search) query.name = { $regex: search, $options: 'i' };
 
-    // 添加投影和限制
+    // 记录查询开始时间
+    queryStartTime = Date.now();
+    console.log(`准备开始查询，距离请求开始: ${queryStartTime - startTime}ms`);
+
     const foods = await Food.find(query)
-      .select('name category riskLevel purineContent') // 只选择必要字段
-      .limit(100)  // 限制返回数量
+      .select('name category riskLevel purineContent')
+      .limit(100)
       .lean()
       .exec();
 
-    console.log(`查询条件: ${JSON.stringify(query)}`);
-    console.log(`返回数据量: ${foods.length}`);
-    console.log(`查询耗时: ${Date.now() - startTime}ms`);
+    const queryEndTime = Date.now();
+    
+    console.log({
+      查询条件: query,
+      数据量: foods.length,
+      查询耗时: queryEndTime - queryStartTime,
+      总耗时: queryEndTime - startTime,
+      连接状态: mongoose.connection.readyState // 0 = 断开, 1 = 已连接, 2 = 连接中, 3 = 断开中
+    });
 
     res.json(foods);
   } catch (error) {
     console.error('查询错误:', error);
+    console.error('错误发生时间:', Date.now() - startTime);
     res.status(500).json({ message: '获取食物数据失败' });
   }
 });
