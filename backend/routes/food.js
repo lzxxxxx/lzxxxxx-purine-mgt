@@ -4,6 +4,7 @@ const Food = require('../models/Food');
 
 // GET /api/foods
 router.get('/', async (req, res) => {
+  const startTime = Date.now();
   try {
     const { category, riskLevel, search } = req.query;
     let query = {};
@@ -19,7 +20,8 @@ router.get('/', async (req, res) => {
       query.name = { $regex: search, $options: 'i' }; // i表示不区分大小写
     }
 
-    const foods = await Food.find(query);
+    const foods = await Food.find(query).lean().exec();
+    console.log(`========Query took ${Date.now() - startTime}ms`);
     res.json(foods);
   } catch (error) {
     console.error('Error fetching foods:', error);
