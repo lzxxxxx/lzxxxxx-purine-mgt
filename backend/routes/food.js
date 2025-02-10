@@ -10,28 +10,24 @@ router.get('/', async (req, res) => {
     let query = {};
 
     // 构建查询条件
-    if (category) {
-      query.category = category;
-    }
-    if (riskLevel) {
-      query.riskLevel = riskLevel;
-    }
-    if (search) {
-      query.name = { $regex: search, $options: 'i' }; // i表示不区分大小写
-    }
-    
-    // 分步骤执行查询以便监控
-    const queryStart = Date.now();
+    if (category) query.category = category;
+    if (riskLevel) query.riskLevel = riskLevel;
+    if (search) query.name = { $regex: search, $options: 'i' };
+
+    // 添加投影和限制
     const foods = await Food.find(query)
+      .select('name category riskLevel purineContent') // 只选择必要字段
+      .limit(100)  // 限制返回数量
       .lean()
       .exec();
-    const queryEnd = Date.now();
 
-    console.log(`========DB Query execution time: ${queryEnd - queryStart}ms`);
+    console.log(`查询条件: ${JSON.stringify(query)}`);
+    console.log(`返回数据量: ${foods.length}`);
+    console.log(`查询耗时: ${Date.now() - startTime}ms`);
+
     res.json(foods);
-    console.log(`========Total response time: ${Date.now() - startTime}ms`);
   } catch (error) {
-    console.error('Error fetching foods:', error);
+    console.error('查询错误:', error);
     res.status(500).json({ message: '获取食物数据失败' });
   }
 });

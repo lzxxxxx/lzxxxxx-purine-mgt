@@ -29,4 +29,8 @@ const foodSchema = new mongoose.Schema({
   }
 });
 
+// 添加复合索引
+foodSchema.index({ category: 1, name: 1 });
+foodSchema.index({ name: 1 });  // 支持文本搜索
+
 module.exports = mongoose.model('Food', foodSchema); 

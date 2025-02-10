@@ -8,23 +8,19 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      // 添加重试机制
-      retryWrites: true,
-      // 读写关注
-      w: 'majority',
-      readPreference: 'primary',
-      // 连接池设置
-      maxPoolSize: 10,
+      // 减少重试次数，加快失败检测
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 30000,
+      // 增加连接池大小
+      maxPoolSize: 20,
       minPoolSize: 5,
-      // 超时设置
-      connectTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      // 心跳设置
-      heartbeatFrequencyMS: 10000,
-      // 服务器选择超时
-      serverSelectionTimeoutMS: 30000,
-      // 开启命令监控
-      monitorCommands: true
+      // 启用压缩
+      compressors: ['zlib'],
+      // 设置更积极的心跳
+      heartbeatFrequencyMS: 5000,
+      // 读写策略
+      readPreference: 'nearest',  // 连接最近的节点
+      w: 1  // 降低写入确认级别
     });
 
     console.log(`数据库连接成功，耗时: ${Date.now() - startTime}ms`);
