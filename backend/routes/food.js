@@ -19,10 +19,17 @@ router.get('/', async (req, res) => {
     if (search) {
       query.name = { $regex: search, $options: 'i' }; // i表示不区分大小写
     }
+    
+    // 分步骤执行查询以便监控
+    const queryStart = Date.now();
+    const foods = await Food.find(query)
+      .lean()
+      .exec();
+    const queryEnd = Date.now();
 
-    const foods = await Food.find(query).lean().exec();
-    console.log(`========Query took ${Date.now() - startTime}ms`);
+    console.log(`========DB Query execution time: ${queryEnd - queryStart}ms`);
     res.json(foods);
+    console.log(`========Total response time: ${Date.now() - startTime}ms`);
   } catch (error) {
     console.error('Error fetching foods:', error);
     res.status(500).json({ message: '获取食物数据失败' });
