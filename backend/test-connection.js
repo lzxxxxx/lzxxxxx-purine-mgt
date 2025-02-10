@@ -6,7 +6,7 @@ async function testConnection() {
     const startTime = Date.now();
     
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect('mongodb+srv://zixuLiu:520fwf.lwt@lzx-owned.3o36b.mongodb.net/purine_db?retryWrites=true&w=majority&appName=lzx-owned');
         console.log(`连接成功！耗时: ${Date.now() - startTime}ms`);
         
         // 测试简单查询
