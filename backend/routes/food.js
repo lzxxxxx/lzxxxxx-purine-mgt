@@ -3,6 +3,18 @@ const router = express.Router();
 const Food = require('../models/Food');
 const mongoose = require('mongoose');
 
+const retryOperation = async (operation, maxRetries = 3) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      console.log(`操作失败，第 ${i + 1} 次重试...`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+};
+
 // GET /api/foods
 router.get('/', async (req, res) => {
   const startTime = Date.now();
@@ -10,6 +22,14 @@ router.get('/', async (req, res) => {
   try {
     console.log('开始处理请求:', new Date().toISOString());
     
+    // 添加连接池状态监控
+    const poolStats = mongoose.connection.client.topology?.s?.pool;
+    console.log('连接池状态:', {
+      当前连接数: poolStats?.totalConnectionCount || 'unknown',
+      可用连接数: poolStats?.availableConnectionCount || 'unknown',
+      等待队列: poolStats?.waitQueueSize || 'unknown'
+    });
+
     const connStart = Date.now();
     const connStats = {
       readyState: mongoose.connection.readyState,
@@ -22,20 +42,27 @@ router.get('/', async (req, res) => {
 
     // 针对无参数查询的优化
     if (!category && !riskLevel && !search) {
-      // 直接使用精简的查询
-      const result = await Food.find(
-        {},  // 空查询条件
-        { name: 1, category: 1, riskLevel: 1, purineContent: 1, _id: 0 }  // 只返回需要的字段
-      )
-      .limit(100)
-      .lean()
-      .batchSize(100);  // 使用批处理优化
+      // 使用更稳定的查询方式
+      const result = await retryOperation(async () => {
+        return await Food.find(
+          {},
+          { name: 1, category: 1, riskLevel: 1, purineContent: 1, _id: 0 }
+        )
+        .limit(100)
+        .lean()
+        .maxTimeMS(5000)  // 5秒超时
+        .exec();
+      });
 
       console.log({
         查询类型: '全表查询',
         查询耗时: Date.now() - queryStart,
         总耗时: Date.now() - startTime,
-        返回数据量: result.length
+        返回数据量: result.length,
+        连接池状态: {
+          当前连接数: poolStats?.totalConnectionCount || 'unknown',
+          可用连接数: poolStats?.availableConnectionCount || 'unknown'
+        }
       });
 
       return res.json(result);

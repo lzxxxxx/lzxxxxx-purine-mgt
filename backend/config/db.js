@@ -6,23 +6,17 @@ const connectDB = async () => {
     const startTime = Date.now();
     
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      // 优化连接池
-      maxPoolSize: 10,        // 减小连接池，避免资源浪费
-      minPoolSize: 3,         // 保持最小连接数
-      maxIdleTimeMS: 30000,   // 空闲连接最大存活时间
+      maxPoolSize: 5,         // 减小连接池大小
+      minPoolSize: 2,         // 保持最小连接数
+      maxIdleTimeMS: 30000,   // 增加空闲时间
       // 超时设置
-      serverSelectionTimeoutMS: 30000,  // 增加选择超时
-      socketTimeoutMS: 60000,          // 增加 socket 超时
-      // 启用压缩
-      compressors: ['zlib'],
-      // 调整心跳频率
-      heartbeatFrequencyMS: 10000,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 60000,
       // 读写策略
-      readPreference: 'nearest',  // 连接最近的节点
-      w: 1,
-      // 重试设置
-      retryWrites: true,
-      retryReads: true
+      readPreference: 'nearest',
+      readConcern: { level: 'local' },  // 使用本地读取级别
+      // 启用压缩
+      compressors: ['zlib']
     });
 
     console.log(`数据库连接成功，耗时: ${Date.now() - startTime}ms`);
@@ -40,6 +34,17 @@ const connectDB = async () => {
     mongoose.connection.on('disconnected', () => {
       console.log('Mongoose 连接断开');
     });
+
+    // 添加连接池监控
+    setInterval(() => {
+      const poolStats = mongoose.connection.client.topology?.s?.pool;
+      console.log('定期连接池状态检查:', {
+        时间: new Date().toISOString(),
+        当前连接数: poolStats?.totalConnectionCount || 'unknown',
+        可用连接数: poolStats?.availableConnectionCount || 'unknown',
+        等待队列: poolStats?.waitQueueSize || 'unknown'
+      });
+    }, 60000);  // 每分钟检查一次
 
   } catch (error) {
     console.error('数据库连接失败:', error);
