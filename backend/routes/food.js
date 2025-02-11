@@ -23,12 +23,18 @@ router.get('/', async (req, res) => {
     console.log('开始处理请求:', new Date().toISOString());
     
     // 添加连接池状态监控
-    const poolStats = mongoose.connection.client.topology.s.pool;
-    console.log('连接池状态:', {
-      当前连接数: poolStats.totalConnectionCount,
-      可用连接数: poolStats.availableConnectionCount,
-      等待队列: poolStats.waitQueueSize
-    });
+    const topology = mongoose.connection.client.topology;
+    const poolStats = topology && topology.s && topology.s.pool;
+
+    if (poolStats) {
+      console.log('连接池状态:', {
+        当前连接数: poolStats.totalConnectionCount,
+        可用连接数: poolStats.availableConnectionCount,
+        等待队列: poolStats.waitQueueSize
+      });
+    } else {
+      console.log('无法获取连接池状态');
+    }
 
     const connStart = Date.now();
     const connStats = {
@@ -59,8 +65,8 @@ router.get('/', async (req, res) => {
         总耗时: Date.now() - startTime,
         返回数据量: result.length,
         连接池状态: {
-          当前连接数: poolStats.totalConnectionCount,
-          可用连接数: poolStats.availableConnectionCount
+          当前连接数: poolStats ? poolStats.totalConnectionCount : 'unknown',
+          可用连接数: poolStats ? poolStats.availableConnectionCount : 'unknown'
         }
       });
 
