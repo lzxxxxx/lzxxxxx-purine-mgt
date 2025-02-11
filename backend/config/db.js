@@ -6,22 +6,23 @@ const connectDB = async () => {
     const startTime = Date.now();
     
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       // 优化连接池
       maxPoolSize: 10,        // 减小连接池，避免资源浪费
       minPoolSize: 3,         // 保持最小连接数
-      maxIdleTimeMS: 10000,   // 空闲连接最大存活时间
+      maxIdleTimeMS: 30000,   // 空闲连接最大存活时间
       // 超时设置
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 30000,  // 增加选择超时
+      socketTimeoutMS: 60000,          // 增加 socket 超时
       // 启用压缩
       compressors: ['zlib'],
-      // 设置更积极的心跳
-      heartbeatFrequencyMS: 5000,
+      // 调整心跳频率
+      heartbeatFrequencyMS: 10000,
       // 读写策略
       readPreference: 'nearest',  // 连接最近的节点
-      w: 1  // 降低写入确认级别
+      w: 1,
+      // 重试设置
+      retryWrites: true,
+      retryReads: true
     });
 
     console.log(`数据库连接成功，耗时: ${Date.now() - startTime}ms`);
@@ -42,6 +43,12 @@ const connectDB = async () => {
 
   } catch (error) {
     console.error('数据库连接失败:', error);
+    // 添加重试逻辑
+    if (error.name === 'MongoNetworkTimeoutError') {
+      console.log('尝试重新连接...');
+      setTimeout(connectDB, 5000);  // 5秒后重试
+      return;
+    }
     process.exit(1);
   }
 };
