@@ -6,21 +6,16 @@ const mongoose = require('mongoose');
 // GET /api/foods
 router.get('/', async (req, res) => {
   const startTime = Date.now();
-  let queryStartTime;
   
   try {
-    // 修改连接池状态监控的方式
+    console.log('开始处理请求:', new Date().toISOString());
+    
+    const connStart = Date.now();
     const connStats = {
       readyState: mongoose.connection.readyState,
-      host: mongoose.connection.host,
-      name: mongoose.connection.name
+      host: mongoose.connection.host
     };
-    
-    console.log('数据库连接状态:', {
-      连接状态: connStats.readyState, // 0 = 断开, 1 = 已连接, 2 = 连接中, 3 = 断开中
-      连接地址: connStats.host,
-      数据库名: connStats.name
-    });
+    console.log('连接状态检查耗时:', Date.now() - connStart);
 
     const { category, riskLevel, search } = req.query;
     let query = {};
@@ -28,30 +23,38 @@ router.get('/', async (req, res) => {
     if (riskLevel) query.riskLevel = riskLevel;
     if (search) query.name = { $regex: search, $options: 'i' };
 
-    // 记录查询开始时间
-    queryStartTime = Date.now();
-    console.log(`准备开始查询，距离请求开始: ${queryStartTime - startTime}ms`);
-
-    // 添加执行计划分析
-    const explain = await Food.find(query)
-      .select('name category riskLevel purineContent')
-      .limit(100)
-      .lean()
-      .explain('executionStats');
-
-    const queryEndTime = Date.now();
-    
-    console.log({
-      查询计划: explain.executionStats,
-      查询耗时: queryEndTime - queryStartTime,
-      总耗时: queryEndTime - startTime
-    });
-
-    // 执行实际查询
+    // 执行查询并记录时间
+    const queryStart = Date.now();
     const result = await Food.find(query)
       .select('name category riskLevel purineContent')
       .limit(100)
       .lean();
+
+    console.log({
+      连接检查耗时: connStart - startTime,
+      查询耗时: Date.now() - queryStart,
+      总耗时: Date.now() - startTime,
+      连接状态: connStats.readyState,
+      查询条件: query,
+      返回数据量: result.length
+    });
+
+    // 获取查询计划
+    const explain = await Food.find(query)
+      .select('name category riskLevel purineContent')
+      .limit(100)
+      .lean()
+      .explain('allPlansExecution');
+
+    console.log({
+      查询计划详情: {
+        执行阶段: explain.queryPlanner.winningPlan.stage,
+        扫描文档数: explain.executionStats.totalDocsExamined,
+        返回文档数: explain.executionStats.nReturned,
+        执行时间: explain.executionStats.executionTimeMillis,
+        是否使用索引: explain.queryPlanner.winningPlan.inputStage?.indexName
+      }
+    });
 
     res.json(result);
   } catch (error) {
