@@ -18,13 +18,35 @@ router.get('/', async (req, res) => {
     console.log('连接状态检查耗时:', Date.now() - connStart);
 
     const { category, riskLevel, search } = req.query;
+    const queryStart = Date.now();
+
+    // 针对无参数查询的优化
+    if (!category && !riskLevel && !search) {
+      // 直接使用精简的查询
+      const result = await Food.find(
+        {},  // 空查询条件
+        { name: 1, category: 1, riskLevel: 1, purineContent: 1, _id: 0 }  // 只返回需要的字段
+      )
+      .limit(100)
+      .lean()
+      .batchSize(100);  // 使用批处理优化
+
+      console.log({
+        查询类型: '全表查询',
+        查询耗时: Date.now() - queryStart,
+        总耗时: Date.now() - startTime,
+        返回数据量: result.length
+      });
+
+      return res.json(result);
+    }
+
     let query = {};
     if (category) query.category = category;
     if (riskLevel) query.riskLevel = riskLevel;
     if (search) query.name = { $regex: search, $options: 'i' };
 
     // 执行查询并记录时间
-    const queryStart = Date.now();
     const result = await Food.find(query)
       .select('name category riskLevel purineContent')
       .limit(100)
