@@ -23,11 +23,11 @@ router.get('/', async (req, res) => {
     console.log('开始处理请求:', new Date().toISOString());
     
     // 添加连接池状态监控
-    const poolStats = mongoose.connection.client.topology?.s?.pool;
+    const poolStats = mongoose.connection.client.topology.s.pool;
     console.log('连接池状态:', {
-      当前连接数: poolStats?.totalConnectionCount || 'unknown',
-      可用连接数: poolStats?.availableConnectionCount || 'unknown',
-      等待队列: poolStats?.waitQueueSize || 'unknown'
+      当前连接数: poolStats.totalConnectionCount,
+      可用连接数: poolStats.availableConnectionCount,
+      等待队列: poolStats.waitQueueSize
     });
 
     const connStart = Date.now();
@@ -42,7 +42,6 @@ router.get('/', async (req, res) => {
 
     // 针对无参数查询的优化
     if (!category && !riskLevel && !search) {
-      // 使用更稳定的查询方式
       const result = await retryOperation(async () => {
         return await Food.find(
           {},
@@ -60,8 +59,8 @@ router.get('/', async (req, res) => {
         总耗时: Date.now() - startTime,
         返回数据量: result.length,
         连接池状态: {
-          当前连接数: poolStats?.totalConnectionCount || 'unknown',
-          可用连接数: poolStats?.availableConnectionCount || 'unknown'
+          当前连接数: poolStats.totalConnectionCount,
+          可用连接数: poolStats.availableConnectionCount
         }
       });
 
@@ -73,7 +72,6 @@ router.get('/', async (req, res) => {
     if (riskLevel) query.riskLevel = riskLevel;
     if (search) query.name = { $regex: search, $options: 'i' };
 
-    // 执行查询并记录时间
     const result = await Food.find(query)
       .select('name category riskLevel purineContent')
       .limit(100)
