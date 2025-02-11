@@ -9,6 +9,15 @@ router.get('/', async (req, res) => {
   let queryStartTime;
   
   try {
+    // 添加连接池状态监控
+    const poolStats = mongoose.connection.client.topology.s.pool;
+    console.log('连接池状态:', {
+      总连接数: poolStats.totalConnectionCount,
+      可用连接数: poolStats.availableConnectionCount,
+      等待队列: poolStats.waitQueueSize,
+      最大连接数: poolStats.maxPoolSize
+    });
+
     const { category, riskLevel, search } = req.query;
     let query = {};
     if (category) query.category = category;
@@ -23,22 +32,25 @@ router.get('/', async (req, res) => {
       .select('name category riskLevel purineContent')
       .limit(100)
       .lean()
-      .exec();
+      .explain('executionStats');  // 添加执行计划分析
 
     const queryEndTime = Date.now();
     
     console.log({
-      查询条件: query,
-      数据量: foods.length,
+      查询计划: foods.executionStats,
       查询耗时: queryEndTime - queryStartTime,
-      总耗时: queryEndTime - startTime,
-      连接状态: mongoose.connection.readyState // 0 = 断开, 1 = 已连接, 2 = 连接中, 3 = 断开中
+      总耗时: queryEndTime - startTime
     });
 
-    res.json(foods);
+    // 移除 explain 结果，只返回数据
+    const result = await Food.find(query)
+      .select('name category riskLevel purineContent')
+      .limit(100)
+      .lean();
+
+    res.json(result);
   } catch (error) {
     console.error('查询错误:', error);
-    console.error('错误发生时间:', Date.now() - startTime);
     res.status(500).json({ message: '获取食物数据失败' });
   }
 });
@@ -64,6 +76,23 @@ router.post('/', async (req, res) => {
     res.status(201).json(newFood);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+// 添加一个新的路由来检查数据库状态
+router.get('/db-status', async (req, res) => {
+  try {
+    const status = await mongoose.connection.db.admin().serverStatus();
+    const stats = await mongoose.connection.db.stats();
+    
+    res.json({
+      connections: status.connections,
+      network: status.network,
+      opcounters: status.opcounters,
+      dbStats: stats
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
