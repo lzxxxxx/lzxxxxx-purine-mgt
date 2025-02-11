@@ -9,13 +9,17 @@ router.get('/', async (req, res) => {
   let queryStartTime;
   
   try {
-    // 添加连接池状态监控
-    const poolStats = mongoose.connection.client.topology.s.pool;
-    console.log('连接池状态:', {
-      总连接数: poolStats.totalConnectionCount,
-      可用连接数: poolStats.availableConnectionCount,
-      等待队列: poolStats.waitQueueSize,
-      最大连接数: poolStats.maxPoolSize
+    // 修改连接池状态监控的方式
+    const connStats = {
+      readyState: mongoose.connection.readyState,
+      host: mongoose.connection.host,
+      name: mongoose.connection.name
+    };
+    
+    console.log('数据库连接状态:', {
+      连接状态: connStats.readyState, // 0 = 断开, 1 = 已连接, 2 = 连接中, 3 = 断开中
+      连接地址: connStats.host,
+      数据库名: connStats.name
     });
 
     const { category, riskLevel, search } = req.query;
@@ -28,21 +32,22 @@ router.get('/', async (req, res) => {
     queryStartTime = Date.now();
     console.log(`准备开始查询，距离请求开始: ${queryStartTime - startTime}ms`);
 
-    const foods = await Food.find(query)
+    // 添加执行计划分析
+    const explain = await Food.find(query)
       .select('name category riskLevel purineContent')
       .limit(100)
       .lean()
-      .explain('executionStats');  // 添加执行计划分析
+      .explain('executionStats');
 
     const queryEndTime = Date.now();
     
     console.log({
-      查询计划: foods.executionStats,
+      查询计划: explain.executionStats,
       查询耗时: queryEndTime - queryStartTime,
       总耗时: queryEndTime - startTime
     });
 
-    // 移除 explain 结果，只返回数据
+    // 执行实际查询
     const result = await Food.find(query)
       .select('name category riskLevel purineContent')
       .limit(100)
