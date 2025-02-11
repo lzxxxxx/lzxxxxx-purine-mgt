@@ -3,6 +3,8 @@ const router = express.Router();
 const Food = require('../models/Food');
 const mongoose = require('mongoose');
 
+mongoose.set('debug', true);
+
 const retryOperation = async (operation, maxRetries = 3) => {
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -23,8 +25,7 @@ router.get('/', async (req, res) => {
     console.log('开始处理请求:', new Date().toISOString());
     
     // 添加连接池状态监控
-    const topology = mongoose.connection.client.topology;
-    const poolStats = topology && topology.s && topology.s.pool;
+    const poolStats = mongoose.connection.client?.topology?.s?.pool;
 
     if (poolStats) {
       console.log('连接池状态:', {
